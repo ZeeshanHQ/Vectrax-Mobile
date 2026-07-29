@@ -7,7 +7,7 @@ class AppConfig {
 
   /// Redirect URI - Must match Supabase Dashboard
   static const String redirectUri =
-      'https://aaf9-111-88-171-222.ngrok-free.app/login-callback';
+      'https://api.vectrax.astraventa.com/login-callback';
 
   /// PKCE State - Should ideally be random, but matching backend for now
   static const String oauthState = 'NxLw-3oYUjcX2ffteMvnFg';
@@ -19,7 +19,7 @@ class AppConfig {
   /// Backend API Base URL
   /// For local testing via tunnel, replace this with your localtunnel/ngrok URL
   static const String apiBaseUrl =
-      'https://aaf9-111-88-171-222.ngrok-free.app';
+      'https://api.vectrax.astraventa.com';
 
   /// Supabase OAuth Authorize Endpoint
   static const String authorizeUrl =
