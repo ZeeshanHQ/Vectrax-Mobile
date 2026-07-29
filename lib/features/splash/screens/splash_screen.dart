@@ -30,14 +30,15 @@ class _SplashScreenState extends State<SplashScreen> {
     // Check if user is logged into the app itself (email OTP / social login)
     final appUser = authService.currentUser;
 
-    await Future.delayed(const Duration(seconds: 2));
+    // Fast, responsive startup delay (800ms)
+    await Future.delayed(const Duration(milliseconds: 800));
 
     if (!mounted) return;
 
     Widget destination;
     if (managementToken != null) {
-      // User is fully connected: app login + Supabase connected
-      destination = const SyncingScreen();
+      // User is fully connected: go straight to the main Dashboard screen for instant startup!
+      destination = const MainNavigationScreen();
     } else if (appUser != null) {
       // User is logged into the app but hasn't connected Supabase yet
       destination = ConnectScreen(userEmail: appUser.email);
