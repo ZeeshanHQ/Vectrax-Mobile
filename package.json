@@ -1,0 +1,23 @@
+{
+  "name": "supabase-pulse-backend",
+  "version": "1.0.0",
+  "description": "Backend OAuth 2.1 PKCE logic for Supabase Pulse mobile management app",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node src/test-pkce.js",
+    "start": "node --env-file=.env src/app.js",
+    "dev": "node --env-file=.env src/index.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.8",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "node-fetch": "^2.7.0",
+    "pg": "^8.22.0",
+    "supabase-management-js": "^0.1.6"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
