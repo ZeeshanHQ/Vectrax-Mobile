@@ -21,6 +21,9 @@ if (saved) {
 
 // Auth verification middleware to keep session tokens fresh
 const ensureAuthenticated = async (req, res, next) => {
+    // Sync from cloud database first (crucial for stateless serverless environments like Vercel)
+    await tokenStore.syncFromDatabase();
+
     const saved = tokenStore.getTokens('default-user');
     if (!saved) {
         return res.status(401).json({ error: 'Not authenticated with Supabase' });
