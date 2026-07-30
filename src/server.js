@@ -36,12 +36,12 @@ export async function handleAuthExchange(req, res) {
         const tokens = await manager.exchangeCodeForTokens(code, codeVerifier, redirectUri);
 
         // 5. Securely Store Tokens
-        // In dev, we use the in-memory store. 
-        // In prod, you'd store this in a DB tied to the user's Pulse account.
-        tokenStore.saveTokens('default-user', tokens);
+        const parts = tokens.access_token.split('.');
+        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+        const userId = payload.sub;
+        await tokenStore.saveTokens(userId, tokens);
 
-        // 6. User info is minimal in v1, identity usually comes from the token owner
-        console.log(`[Server] Secure identity exchange complete for default-user`);
+        console.log(`[Server] Secure identity exchange complete for user: ${userId}`);
 
         // 7. Return Success to Mobile
         const email = 'user@supabase.com';

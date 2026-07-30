@@ -190,6 +190,8 @@ class _TableBrowserScreenState extends State<TableBrowserScreen>
 
       final ref = _projectContext.currentProject?['ref'] ?? _projectContext.currentProject?['id'];
       if (ref != null) {
+        // Clear stale resources from previous selections before starting new fetch
+        _resources = [];
         if (_activeTab == 'TABLES') {
           _resources = await _apiService.listTables(ref);
         } else if (_activeTab == 'FUNCTIONS') {

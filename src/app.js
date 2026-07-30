@@ -10,30 +10,41 @@ import { validateConfig, SupabaseManager, DashboardAPI, tokenStore, AiManager } 
 // Global instances
 const manager = new SupabaseManager();
 const ai = new AiManager();
-let dashboard = null;
-
-// Initialise Dashboard if tokens exist for 'default-user'
-const saved = tokenStore.getTokens('default-user');
-if (saved) {
-    const client = manager.getManagementClient(saved.access_token);
-    dashboard = new DashboardAPI(client);
-}
 
 // Auth verification middleware to keep session tokens fresh
 const ensureAuthenticated = async (req, res, next) => {
-    // Sync from cloud database first (crucial for stateless serverless environments like Vercel)
-    await tokenStore.syncFromDatabase();
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'Missing or malformed Authorization header' });
+    }
+    const token = authHeader.split(' ')[1];
 
-    const saved = tokenStore.getTokens('default-user');
-    if (!saved) {
-        return res.status(401).json({ error: 'Not authenticated with Supabase' });
+    let userId;
+    try {
+        const parts = token.split('.');
+        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+        userId = payload.sub;
+        if (!userId) throw new Error('sub claim missing');
+    } catch (err) {
+        console.error('[Server] ❌ JWT decode failed:', err.message);
+        return res.status(401).json({ error: 'Invalid authorization token' });
     }
 
-    if (!tokenStore.isTokenValid('default-user')) {
-        console.log('[Server] 🔄 Token expired or near expiry. Refreshing...');
+    req.userId = userId;
+
+    // Sync specific user's tokens from database
+    await tokenStore.syncFromDatabase(userId);
+
+    const saved = tokenStore.getTokens(userId);
+    if (!saved) {
+        return res.status(401).json({ error: 'Not authenticated with Supabase. Please reconnect.' });
+    }
+
+    if (!tokenStore.isTokenValid(userId)) {
+        console.log(`[Server] 🔄 Token expired or near expiry for user ${userId}. Refreshing...`);
         try {
             const newTokens = await manager.refreshAccessToken(saved.refresh_token);
-            tokenStore.saveTokens('default-user', newTokens);
+            await tokenStore.saveTokens(userId, newTokens);
             console.log('[Server] ✅ Token refreshed successfully.');
         } catch (error) {
             console.error('[Server] ❌ Token refresh failed:', error.message);
@@ -41,9 +52,9 @@ const ensureAuthenticated = async (req, res, next) => {
         }
     }
 
-    const activeTokens = tokenStore.getTokens('default-user');
+    const activeTokens = tokenStore.getTokens(userId);
     const client = manager.getManagementClient(activeTokens.access_token);
-    dashboard = new DashboardAPI(client);
+    req.dashboard = new DashboardAPI(client);
     next();
 };
 
@@ -69,13 +80,6 @@ app.use('/api/organizations', ensureAuthenticated);
 // Flutter calls this after receiving the code from Supabase
 app.post('/api/auth/exchange', async (req, res) => {
     await handleAuthExchange(req, res);
-
-    // After exchange, refresh our global dashboard instance
-    const saved = tokenStore.getTokens('default-user');
-    if (saved) {
-        const client = manager.getManagementClient(saved.access_token);
-        dashboard = new DashboardAPI(client);
-    }
 });
 
 // ── Custom OTP (Resend) ───────────────────────────────────────────────────
@@ -87,6 +91,7 @@ app.post('/api/auth/otp/verify', handleOtpVerify);
 
 // List Projects
 app.get('/api/projects', async (req, res) => {
+    const dashboard = req.dashboard;
     if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
     try {
         const projects = await dashboard.projects.listProjects();
@@ -98,7 +103,7 @@ app.get('/api/projects', async (req, res) => {
 
 // Restore Project
 app.post('/api/projects/:ref/restore', async (req, res) => {
-    const saved = tokenStore.getTokens('default-user');
+    const saved = tokenStore.getTokens(req.userId);
     const projectRef = req.params.ref;
     console.log(`[Server] 🏗️ Attempting to restore project: ${projectRef}`);
 
@@ -133,7 +138,7 @@ app.post('/api/projects/:ref/restore', async (req, res) => {
 
 // Pause Project
 app.post('/api/projects/:ref/pause', async (req, res) => {
-    const saved = tokenStore.getTokens('default-user');
+    const saved = tokenStore.getTokens(req.userId);
     const projectRef = req.params.ref;
     console.log(`[Server] ⏸️ Attempting to pause project: ${projectRef}`);
 
@@ -168,7 +173,7 @@ app.post('/api/projects/:ref/pause', async (req, res) => {
 
 // Restart Project
 app.post('/api/projects/:ref/restart', async (req, res) => {
-    const saved = tokenStore.getTokens('default-user');
+    const saved = tokenStore.getTokens(req.userId);
     const projectRef = req.params.ref;
     console.log(`[Server] 🔄 Attempting to restart database: ${projectRef}`);
 
@@ -203,6 +208,7 @@ app.post('/api/projects/:ref/restart', async (req, res) => {
 
 // Ping Project (Keep Alive)
 app.post('/api/projects/:ref/ping', async (req, res) => {
+    const dashboard = req.dashboard;
     if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
     try {
         const result = await dashboard.projects.pingProject(req.params.ref);
@@ -214,6 +220,7 @@ app.post('/api/projects/:ref/ping', async (req, res) => {
 
 // List Organizations
 app.get('/api/organizations', async (req, res) => {
+    const dashboard = req.dashboard;
     if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
     try {
         const orgs = await dashboard.orgs.listOrganizations();
@@ -227,6 +234,7 @@ app.get('/api/organizations', async (req, res) => {
 
 // List Tables
 app.get('/api/projects/:ref/tables', async (req, res) => {
+    const dashboard = req.dashboard;
     if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
     const ref = req.params.ref;
     const apiKey = req.query.apiKey;
@@ -243,6 +251,7 @@ app.get('/api/projects/:ref/tables', async (req, res) => {
 
 // Get Project Keys
 app.get('/api/projects/:ref/keys', async (req, res) => {
+    const dashboard = req.dashboard;
     if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
     const ref = req.params.ref;
     try {
@@ -255,6 +264,7 @@ app.get('/api/projects/:ref/keys', async (req, res) => {
 
 // Get Database Schema
 app.get('/api/projects/:ref/schema', async (req, res) => {
+    const dashboard = req.dashboard;
     if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
     const ref = req.params.ref;
     try {
@@ -267,6 +277,7 @@ app.get('/api/projects/:ref/schema', async (req, res) => {
 
 // List Functions
 app.get('/api/projects/:ref/functions', async (req, res) => {
+    const dashboard = req.dashboard;
     if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
     try {
         const functions = await dashboard.projects.listFunctions(req.params.ref);
@@ -278,6 +289,7 @@ app.get('/api/projects/:ref/functions', async (req, res) => {
 
 // List Buckets
 app.get('/api/projects/:ref/buckets', async (req, res) => {
+    const dashboard = req.dashboard;
     if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
     try {
         const buckets = await dashboard.projects.listBuckets(req.params.ref);
@@ -289,6 +301,7 @@ app.get('/api/projects/:ref/buckets', async (req, res) => {
 
 // List Users
 app.get('/api/projects/:ref/users', async (req, res) => {
+    const dashboard = req.dashboard;
     if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
     try {
         const users = await dashboard.projects.listUsers(req.params.ref);
@@ -301,6 +314,7 @@ app.get('/api/projects/:ref/users', async (req, res) => {
 
 // Get Table Records
 app.get('/api/projects/:ref/tables/:tableName/records', async (req, res) => {
+    const dashboard = req.dashboard;
     if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
     const { ref, tableName } = req.params;
     const apiKey = req.query.apiKey;
@@ -314,6 +328,7 @@ app.get('/api/projects/:ref/tables/:tableName/records', async (req, res) => {
 
 // List Bucket Files
 app.get('/api/projects/:ref/buckets/:id/files', async (req, res) => {
+    const dashboard = req.dashboard;
     if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
     const { ref, id } = req.params;
     const { prefix } = req.query;
@@ -327,6 +342,7 @@ app.get('/api/projects/:ref/buckets/:id/files', async (req, res) => {
 
 // Execute SQL
 app.post('/api/projects/:ref/sql', async (req, res) => {
+    const dashboard = req.dashboard;
     if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
     const { ref } = req.params;
     const { query } = req.body;
@@ -359,6 +375,7 @@ app.post('/api/ai/generate-sql', async (req, res) => {
 
 // Delete Resource (Universal)
 app.delete('/api/projects/:ref/resources/:type/:id', async (req, res) => {
+    const dashboard = req.dashboard;
     if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
     const { ref, type, id } = req.params;
     try {
