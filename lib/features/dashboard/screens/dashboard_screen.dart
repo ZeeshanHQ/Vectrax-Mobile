@@ -619,18 +619,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           final isActive =
                               status == 'ACTIVE_HEALTHY' || status == 'ACTIVE';
                           final isLocked = !_isPro && !ProjectContext().isProjectMonitored(id);
-                          final isPausedActual = !isActive || isLocked || status == 'PAUSED';
+                          final isPausedActual = !isActive || status == 'PAUSED';
                           return _buildProjectCard(
                             context,
                             name: project['name'] ?? 'Untitled',
                             ref: id,
-                            status: isLocked || status == 'PAUSED' ? 'PAUSED' : status,
+                            status: status,
                             cpu: isPausedActual ? '0' : '${metrics['cpu']!.toStringAsFixed(0)} / 60',
                             ram: isPausedActual ? '0.0 MB' : '${metrics['ram']!.toStringAsFixed(1)} MB',
                             rawCpu: isPausedActual ? 0.0 : metrics['cpu']!,
                             rawRam: isPausedActual ? 0.0 : metrics['ram']!,
                             nodeCount: 1,
                             isPaused: isPausedActual,
+                            isLocked: isLocked,
                           );
                         },
                         childCount: _projects.length,
@@ -966,6 +967,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required double rawRam,
     required int nodeCount,
     required bool isPaused,
+    bool isLocked = false,
     bool hasAlert = false,
   }) {
     final isActive = status == 'ACTIVE_HEALTHY' || status == 'ACTIVE';
@@ -1061,7 +1063,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                         ),
-                        if (isActive && !isPaused)
+                        if (isLocked)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.white24, width: 0.8),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.lock_outline_rounded, color: Colors.white60, size: 12),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'LOCKED',
+                                  style: GoogleFonts.outfit(
+                                    color: Colors.white60,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else if (isActive && !isPaused)
                           _buildPingButton(context, ref, name)
                         else if (isPaused)
                           _buildRestoreButton(context, ref, name),
