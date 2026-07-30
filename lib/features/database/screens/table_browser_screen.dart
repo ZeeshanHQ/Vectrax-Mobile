@@ -566,7 +566,11 @@ class _TableBrowserScreenState extends State<TableBrowserScreen>
             title: 'NO $_activeTab DISCOVERED',
             description:
                 'No ${_activeTab.toLowerCase()} found for ${_projectContext.currentProject?['name']?.toString() ?? 'this project'}.',
-            customAction: null,
+            actionLabel: 'REFRESH DISCOVERY',
+            onAction: () {
+              HapticFeedback.mediumImpact();
+              _loadData();
+            },
           )
         else
           ListView.builder(

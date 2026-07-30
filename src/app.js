@@ -19,6 +19,31 @@ if (saved) {
     dashboard = new DashboardAPI(client);
 }
 
+// Auth verification middleware to keep session tokens fresh
+const ensureAuthenticated = async (req, res, next) => {
+    const saved = tokenStore.getTokens('default-user');
+    if (!saved) {
+        return res.status(401).json({ error: 'Not authenticated with Supabase' });
+    }
+
+    if (!tokenStore.isTokenValid('default-user')) {
+        console.log('[Server] 🔄 Token expired or near expiry. Refreshing...');
+        try {
+            const newTokens = await manager.refreshAccessToken(saved.refresh_token);
+            tokenStore.saveTokens('default-user', newTokens);
+            console.log('[Server] ✅ Token refreshed successfully.');
+        } catch (error) {
+            console.error('[Server] ❌ Token refresh failed:', error.message);
+            return res.status(401).json({ error: 'Session expired. Please reconnect.' });
+        }
+    }
+
+    const activeTokens = tokenStore.getTokens('default-user');
+    const client = manager.getManagementClient(activeTokens.access_token);
+    dashboard = new DashboardAPI(client);
+    next();
+};
+
 // 1. Initialise & Validate
 try {
     validateConfig();
@@ -34,6 +59,8 @@ const PORT = process.env.PORT || 3000;
 app.use(cors()); // Allow Flutter Web (CORS)
 app.use(express.json()); // Parse JSON bodies
 app.use('/assets', express.static('assets'));
+app.use('/api/projects', ensureAuthenticated);
+app.use('/api/organizations', ensureAuthenticated);
 
 // 3. Routes
 // Flutter calls this after receiving the code from Supabase
