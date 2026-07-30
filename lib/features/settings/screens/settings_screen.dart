@@ -154,7 +154,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _toggleHaptics(bool value) async {
     setState(() => _hapticsEnabled = value);
     await _saveSetting('haptics_enabled', value);
-    if (value) HapticFeedback.mediumImpact();
+    if (value) HapticFeedback.vibrate();
   }
 
   Future<void> _loadUserProfile() async {
@@ -425,7 +425,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _buildSettingsCard([
               _buildSwitchRow(
                 label: 'Haptic Feedback',
-                subtitle: 'Tacit vibrations during interaction',
+                subtitle: 'Tactile vibration clicks. Note: System touch vibrations must be enabled in Android settings.',
                 icon: Icons.vibration_rounded,
                 value: _hapticsEnabled,
                 onChanged: _toggleHaptics,
@@ -501,7 +501,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Text(
       label,
       style: const TextStyle(
-          color: Colors.white24,
+          color: Colors.white60,
           fontSize: 9,
           fontWeight: FontWeight.w900,
           letterSpacing: 2),

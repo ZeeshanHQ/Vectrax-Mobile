@@ -484,7 +484,7 @@ class _SqlSnippetsScreenState extends ConsumerState<SqlSnippetsScreen> {
               Text(
                 'LIVE COMMAND CONSOLE',
                 style: GoogleFonts.inter(
-                  color: Colors.white38,
+                  color: Colors.white60,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.5,

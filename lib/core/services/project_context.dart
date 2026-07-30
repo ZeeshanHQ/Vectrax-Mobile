@@ -58,9 +58,8 @@ class ProjectContext extends ChangeNotifier {
 
   bool isProjectMonitored(String? projectId) {
     if (projectId == null) return false;
-    // If not seeded yet but under 2 projects total, consider monitored
-    if (_monitoredProjectIds.isEmpty) return true;
-    return _monitoredProjectIds.contains(projectId);
+    // Always return true to allow unlimited projects monitoring for early traction and user adoption
+    return true;
   }
 
   Future<bool> activateProjectSlot(String projectId, {bool force = false}) async {

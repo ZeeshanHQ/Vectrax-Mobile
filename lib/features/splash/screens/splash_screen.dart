@@ -4,7 +4,6 @@ import 'package:supa_app/core/theme/app_theme.dart';
 import 'package:supa_app/core/services/auth_service.dart';
 import 'package:supa_app/features/splash/screens/onboarding_screen.dart';
 import 'package:supa_app/features/auth/screens/connect_screen.dart';
-import 'package:supa_app/features/auth/screens/syncing_screen.dart';
 import 'package:supa_app/core/widgets/main_navigation_screen.dart';
 
 class SplashScreen extends StatefulWidget {
