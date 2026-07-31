@@ -72,7 +72,7 @@ export default class AiManager {
     }
 
     async #callGemini(prompt, schema) {
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-8b:generateContent?key=${this.geminiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.geminiKey}`;
 
         const systemPrompt = this.#buildSystemPrompt(schema);
 
@@ -128,7 +128,7 @@ export default class AiManager {
             },
             signal: controller.signal,
             body: JSON.stringify({
-                model: 'google/gemini-flash-1.5',
+                model: 'google/gemini-2.5-flash',
                 messages: [
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: prompt }
@@ -168,7 +168,7 @@ export default class AiManager {
             },
             signal: controller.signal,
             body: JSON.stringify({
-                model: 'x-ai/grok-4',
+                model: 'x-ai/grok-2',
                 messages: [
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: prompt }
