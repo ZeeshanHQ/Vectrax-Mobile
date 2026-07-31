@@ -35,10 +35,8 @@ export async function handleAuthExchange(req, res) {
         const manager = new SupabaseManager();
         const tokens = await manager.exchangeCodeForTokens(code, codeVerifier, redirectUri);
 
-        // 5. Securely Store Tokens
-        const parts = tokens.access_token.split('.');
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-        const userId = payload.sub;
+        // 5. Securely Store Tokens (linked to the Vectrax user UUID)
+        const userId = req.headers['x-user-id'] || 'default-user';
         await tokenStore.saveTokens(userId, tokens);
 
         console.log(`[Server] Secure identity exchange complete for user: ${userId}`);

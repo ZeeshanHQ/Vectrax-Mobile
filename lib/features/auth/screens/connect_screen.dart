@@ -69,9 +69,14 @@ class _ConnectScreenState extends State<ConnectScreen>
   Future<void> _exchangeCodeAndNavigate(String code) async {
     try {
       debugPrint('[ConnectScreen] 🔄 Exchanging code for token...');
+      final client = Supabase.instance.client;
+      final userId = client.auth.currentUser?.id;
       final response = await http.post(
         Uri.parse('${AppConfig.apiBaseUrl}/api/auth/exchange'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          if (userId != null) 'X-User-Id': userId,
+        },
         body: jsonEncode({
           'code': code,
           'codeVerifier': AppConfig.codeVerifier,
