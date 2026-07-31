@@ -61,8 +61,10 @@ class TokenStore {
     /**
      * Pull the latest connection tokens from the cloud database into memory.
      * Crucial for Vercel/serverless environments where local files are wiped out.
+     *
+     * @param {string} [userId='default-user'] - The user ID to sync
      */
-    async syncFromDatabase() {
+    async syncFromDatabase(userId = 'default-user') {
         const dbPool = getPool();
         if (!dbPool) {
             console.warn('[TokenStore] ⚠️ DATABASE_URL not set. Skipping DB sync.');
@@ -80,16 +82,16 @@ class TokenStore {
                 );
             `);
 
-            console.log('[TokenStore] 🔍 Syncing connection tokens from cloud database (oauth_tokens)...');
+            console.log(`[TokenStore] 🔍 Syncing connection tokens from cloud database for user: ${userId}...`);
             const res = await dbPool.query(
                 'SELECT * FROM oauth_tokens WHERE user_id = $1',
-                ['default-user']
+                [userId]
             );
             if (res.rows.length > 0) {
                 const row = res.rows[0];
                 const expires_at = Number(row.expires_at);
 
-                this.#store.set('default-user', {
+                this.#store.set(userId, {
                     access_token: row.access_token,
                     refresh_token: row.refresh_token,
                     token_type: 'bearer',
@@ -97,9 +99,9 @@ class TokenStore {
                     stored_at: Date.now(),
                     expires_at: expires_at,
                 });
-                console.log('[TokenStore] 🚀 Sync complete. Connection loaded into memory.');
+                console.log(`[TokenStore] 🚀 Sync complete. Connection loaded into memory for user: ${userId}`);
             } else {
-                console.log('[TokenStore] ⚠️ No active connection found in oauth_tokens.');
+                console.log(`[TokenStore] ⚠️ No active connection found in oauth_tokens for user: ${userId}`);
             }
         } catch (err) {
             console.error('[TokenStore] ❌ Cloud DB sync error:', err.message);
