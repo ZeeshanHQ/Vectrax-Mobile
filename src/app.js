@@ -54,7 +54,7 @@ const ensureAuthenticated = async (req, res, next) => {
 
     const activeTokens = tokenStore.getTokens(userId);
     const client = manager.getManagementClient(activeTokens.access_token);
-    req.dashboard = new DashboardAPI(client);
+    req.dashboard = new DashboardAPI(client, userId);
     next();
 };
 

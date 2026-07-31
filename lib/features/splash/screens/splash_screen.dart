@@ -23,10 +23,9 @@ class _SplashScreenState extends State<SplashScreen> {
   void _navigateToNext() async {
     final authService = AuthService();
 
-    // Check Supabase Management API token (set after Connect Supabase flow)
-    final managementToken = await authService.getAccessToken();
-    
     // Check if user is logged into the app itself (email OTP / social login)
+    final hasVectraxToken = await authService.getAccessToken() != null;
+    final hasSupaToken = await authService.isSupabaseConnected();
     final appUser = authService.currentUser;
 
     // Fast, responsive startup delay (800ms)
@@ -35,12 +34,12 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     Widget destination;
-    if (managementToken != null) {
+    if (hasVectraxToken && hasSupaToken) {
       // User is fully connected: go straight to the main Dashboard screen for instant startup!
       destination = const MainNavigationScreen();
-    } else if (appUser != null) {
+    } else if (hasVectraxToken || appUser != null) {
       // User is logged into the app but hasn't connected Supabase yet
-      destination = ConnectScreen(userEmail: appUser.email);
+      destination = ConnectScreen(userEmail: appUser?.email);
     } else {
       // User is not logged in at all
       destination = const OnboardingScreen();

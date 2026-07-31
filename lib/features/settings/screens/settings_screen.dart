@@ -259,8 +259,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       
       // 1. Clear local secure storage
       const storage = FlutterSecureStorage();
-      await storage.delete(key: 'access_token');
-      await storage.delete(key: 'refresh_token');
+      await storage.delete(key: 'supabase_access_token');
+      await storage.delete(key: 'supabase_refresh_token');
 
       // 2. Clear from Cloud DB
       try {

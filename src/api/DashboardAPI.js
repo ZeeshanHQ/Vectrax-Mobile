@@ -11,14 +11,15 @@ import FunctionManager from './FunctionManager.js';
 import LogManager from './LogManager.js';
 
 export default class DashboardAPI {
-    constructor(apiClient) {
+    constructor(apiClient, userId) {
         this.client = apiClient;
+        this.userId = userId;
 
         // Initialize feature-specific managers
-        this.projects = new ProjectManager(this.client);
-        this.orgs = new OrganizationManager(this.client);
-        this.functions = new FunctionManager(this.client);
-        this.logs = new LogManager(this.client);
+        this.projects = new ProjectManager(this.client, userId);
+        this.orgs = new OrganizationManager(this.client, userId);
+        this.functions = new FunctionManager(this.client, userId);
+        this.logs = new LogManager(this.client, userId);
     }
 
     /**

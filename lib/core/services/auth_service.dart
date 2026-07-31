@@ -158,9 +158,9 @@ class AuthService {
             if (authResp.session != null) {
               await _storage.write(key: 'user_email', value: email);
               if (accessToken != null) {
-                await _storage.write(key: 'access_token', value: accessToken);
+                await _storage.write(key: 'vectrax_access_token', value: accessToken);
               }
-              await _storage.write(key: 'refresh_token', value: refreshToken);
+              await _storage.write(key: 'vectrax_refresh_token', value: refreshToken);
               await ensureProfileExists(); // Ensure database profile row exists
               return true;
             }
@@ -221,9 +221,14 @@ class AuthService {
 
   // ─── Token helpers ───────────────────────────────────────────────────────────
 
-  Future<String?> getAccessToken() => _storage.read(key: 'access_token');
+  Future<String?> getAccessToken() => _storage.read(key: 'vectrax_access_token');
 
-  Future<String?> getRefreshToken() => _storage.read(key: 'refresh_token');
+  Future<String?> getRefreshToken() => _storage.read(key: 'vectrax_refresh_token');
+
+  Future<bool> isSupabaseConnected() async {
+    final token = await _storage.read(key: 'supabase_access_token');
+    return token != null;
+  }
 
   // ─── Legacy/PAT helpers ──────────────────────────────────────────────────────
 

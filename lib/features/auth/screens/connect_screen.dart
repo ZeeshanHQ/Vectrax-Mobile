@@ -59,7 +59,7 @@ class _ConnectScreenState extends State<ConnectScreen>
       // "CONNECT SUPABASE" (i.e., _isLoading is true).
       // This prevents the login-callback code from accidentally
       // triggering a Dashboard transition.
-      if (_isLoading && uri.queryParameters.containsKey('code')) {
+      if (uri.queryParameters.containsKey('code')) {
         final code = uri.queryParameters['code']!;
         _exchangeCodeAndNavigate(code);
       }
@@ -90,28 +90,11 @@ class _ConnectScreenState extends State<ConnectScreen>
         final refreshToken = data['refresh_token'] as String?;
 
         if (accessToken != null) {
-          // 1. Save locally for immediate access
+          // 1. Save locally for fast connection verification checks
           const storage = FlutterSecureStorage();
-          await storage.write(key: 'access_token', value: accessToken);
+          await storage.write(key: 'supabase_access_token', value: accessToken);
           if (refreshToken != null) {
-            await storage.write(key: 'refresh_token', value: refreshToken);
-          }
-
-          // 2. Sync to Cloud DB (for multi-device persistence)
-          try {
-            final client = Supabase.instance.client;
-            final userId = client.auth.currentUser?.id;
-            if (userId != null) {
-              await client.from('supabase_connections').upsert({
-                'user_id': userId,
-                'access_token': accessToken,
-                'refresh_token': refreshToken,
-                'connected_at': DateTime.now().toIso8601String(),
-              });
-              debugPrint('[ConnectScreen] ☁️ Tokens synced to Cloud DB');
-            }
-          } catch (dbError) {
-            debugPrint('[ConnectScreen] ⚠️ Cloud DB sync failed (non-fatal): $dbError');
+            await storage.write(key: 'supabase_refresh_token', value: refreshToken);
           }
 
           debugPrint('[ConnectScreen] ✅ Connection complete. Navigating...');

@@ -8,8 +8,9 @@
 import tokenStore from '../tokenStore.js';
 
 export default class ProjectManager {
-    constructor(apiClient) {
+    constructor(apiClient, userId) {
         this.client = apiClient;
+        this.userId = userId;
     }
 
     /**
@@ -123,9 +124,9 @@ export default class ProjectManager {
     async getProjectKeys(projectRef) {
         console.log(`[ProjectManager] 🔐 Fetching API keys for ${projectRef}...`);
         try {
-            const saved = tokenStore.getTokens('default-user');
+            const saved = tokenStore.getTokens(this.userId || 'default-user');
             if (!saved) {
-                console.error('[ProjectManager] ❌ Keys fetch aborted: default-user session not found in tokenStore');
+                console.error(`[ProjectManager] ❌ Keys fetch aborted: session not found for user: ${this.userId || 'default-user'}`);
                 throw new Error('Shared session tokens not found');
             }
 
@@ -233,9 +234,9 @@ export default class ProjectManager {
 
 
             // Fallback: Use Management API with OAuth (limited for inactive projects)
-            const saved = tokenStore.getTokens('default-user');
+            const saved = tokenStore.getTokens(this.userId || 'default-user');
             if (!saved) {
-                console.error('[ProjectManager] ❌ Table discovery aborted: Session not found');
+                console.error(`[ProjectManager] ❌ Table discovery aborted: Session not found for user: ${this.userId || 'default-user'}`);
                 throw new Error('Shared session tokens not found');
             }
 
@@ -348,7 +349,7 @@ export default class ProjectManager {
             const actualRef = await this.#resolveProjectRef(projectRef);
 
             // 1. Try Management API
-            const saved = tokenStore.getTokens('default-user');
+            const saved = tokenStore.getTokens(this.userId || 'default-user');
             if (saved) {
                 try {
                     const response = await fetch(`https://api.supabase.com/v1/projects/${actualRef}/storage/buckets`, {
@@ -400,8 +401,8 @@ export default class ProjectManager {
         console.log(`[ProjectManager] ⚡ Fetching edge functions for project: ${projectRef}...`);
         try {
             const actualRef = await this.#resolveProjectRef(projectRef);
-            const saved = tokenStore.getTokens('default-user');
-            if (!saved) throw new Error('Session tokens not found');
+            const saved = tokenStore.getTokens(this.userId || 'default-user');
+            if (!saved) throw new Error(`Session tokens not found for user: ${this.userId || 'default-user'}`);
 
             const response = await fetch(`https://api.supabase.com/v1/projects/${actualRef}/functions`, {
                 headers: {
@@ -458,8 +459,8 @@ export default class ProjectManager {
         console.log(`[ProjectManager] 🗑️ Deleting ${type}: ${id} in ${projectRef}...`);
         try {
             const actualRef = await this.#resolveProjectRef(projectRef);
-            const saved = tokenStore.getTokens('default-user');
-            if (!saved) throw new Error('Session tokens not found');
+            const saved = tokenStore.getTokens(this.userId || 'default-user');
+            if (!saved) throw new Error(`Session tokens not found for user: ${this.userId || 'default-user'}`);
 
             let url;
             switch (type) {
@@ -595,8 +596,8 @@ export default class ProjectManager {
 
         try {
             const actualRef = await this.#resolveProjectRef(projectRef);
-            const saved = tokenStore.getTokens('default-user');
-            if (!saved) throw new Error('Session tokens not found');
+            const saved = tokenStore.getTokens(this.userId || 'default-user');
+            if (!saved) throw new Error(`Session tokens not found for user: ${this.userId || 'default-user'}`);
 
             // Log Service Role availability for unrestricted access
             const keys = await this.getProjectKeys(actualRef);
