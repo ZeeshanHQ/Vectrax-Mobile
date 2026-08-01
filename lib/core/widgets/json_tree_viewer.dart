@@ -81,6 +81,7 @@ class _JsonTreeViewState extends State<JsonTreeView> {
                 return JsonTreeView(
                   label: entry.key.toString(),
                   data: entry.value,
+                  initialExpanded: widget.initialExpanded,
                 );
               }).toList(),
             ),
@@ -133,6 +134,7 @@ class _JsonTreeViewState extends State<JsonTreeView> {
                 return JsonTreeView(
                   label: entry.key.toString(),
                   data: entry.value,
+                  initialExpanded: widget.initialExpanded,
                 );
               }).toList(),
             ),

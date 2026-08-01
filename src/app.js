@@ -287,6 +287,42 @@ app.get('/api/projects/:ref/functions', async (req, res) => {
     }
 });
 
+// List Secrets
+app.get('/api/projects/:ref/secrets', async (req, res) => {
+    const dashboard = req.dashboard;
+    if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
+    try {
+        const secrets = await dashboard.projects.listSecrets(req.params.ref);
+        res.json(secrets);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Upsert Secrets
+app.post('/api/projects/:ref/secrets', async (req, res) => {
+    const dashboard = req.dashboard;
+    if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
+    try {
+        const result = await dashboard.projects.upsertSecrets(req.params.ref, req.body);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Delete Secrets
+app.delete('/api/projects/:ref/secrets', async (req, res) => {
+    const dashboard = req.dashboard;
+    if (!dashboard) return res.status(401).json({ error: 'Not authenticated with Supabase' });
+    try {
+        const result = await dashboard.projects.deleteSecrets(req.params.ref, req.body);
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // List Buckets
 app.get('/api/projects/:ref/buckets', async (req, res) => {
     const dashboard = req.dashboard;

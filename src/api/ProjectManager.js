@@ -420,6 +420,96 @@ export default class ProjectManager {
     }
 
     /**
+     * List all secrets for a project.
+     * @param {string} projectRef 
+     */
+    async listSecrets(projectRef) {
+        console.log(`[ProjectManager] 🔐 Fetching secrets for project: ${projectRef}...`);
+        try {
+            const actualRef = await this.#resolveProjectRef(projectRef);
+            const saved = tokenStore.getTokens(this.userId || 'default-user');
+            if (!saved) throw new Error(`Session tokens not found for user: ${this.userId || 'default-user'}`);
+
+            const response = await fetch(`https://api.supabase.com/v1/projects/${actualRef}/secrets`, {
+                headers: {
+                    'Authorization': `Bearer ${saved.access_token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error(`Secrets list API error (${response.status})`);
+            return await response.json();
+        } catch (error) {
+            console.error(`[ProjectManager] Secrets list failed: ${error.message}`);
+            return [];
+        }
+    }
+
+    /**
+     * Create or update secrets for a project.
+     * @param {string} projectRef 
+     * @param {Array<{name: string, value: string}>} secrets
+     */
+    async upsertSecrets(projectRef, secrets) {
+        console.log(`[ProjectManager] 🔑 Upserting secrets for project: ${projectRef}...`);
+        try {
+            const actualRef = await this.#resolveProjectRef(projectRef);
+            const saved = tokenStore.getTokens(this.userId || 'default-user');
+            if (!saved) throw new Error(`Session tokens not found for user: ${this.userId || 'default-user' });`);
+
+            const response = await fetch(`https://api.supabase.com/v1/projects/${actualRef}/secrets`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${saved.access_token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(secrets)
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Secrets upsert API error (${response.status}): ${errText}`);
+            }
+            return { success: true };
+        } catch (error) {
+            console.error(`[ProjectManager] Secrets upsert failed: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
+     * Delete secrets for a project.
+     * @param {string} projectRef 
+     * @param {Array<string>} secretNames
+     */
+    async deleteSecrets(projectRef, secretNames) {
+        console.log(`[ProjectManager] 🗑️ Deleting secrets for project: ${projectRef}...`);
+        try {
+            const actualRef = await this.#resolveProjectRef(projectRef);
+            const saved = tokenStore.getTokens(this.userId || 'default-user');
+            if (!saved) throw new Error(`Session tokens not found for user: ${this.userId || 'default-user'}`);
+
+            const response = await fetch(`https://api.supabase.com/v1/projects/${actualRef}/secrets`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${saved.access_token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(secretNames)
+            });
+
+            if (!response.ok) {
+                const errText = await response.text();
+                throw new Error(`Secrets delete API error (${response.status}): ${errText}`);
+            }
+            return { success: true };
+        } catch (error) {
+            console.error(`[ProjectManager] Secrets delete failed: ${error.message}`);
+            throw error;
+        }
+    }
+
+    /**
      * List all users for a project via the project's database query.
      * @param {string} projectRef 
      */
