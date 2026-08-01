@@ -19,6 +19,7 @@ import 'package:supa_app/features/storage/screens/bucket_view_screen.dart';
 import 'package:supa_app/core/widgets/project_slots_dialog.dart';
 import 'package:supa_app/features/premium/screens/pulse_premium_screen.dart';
 import 'package:supa_app/features/project/screens/logs_screen.dart';
+import 'package:supa_app/features/database/screens/edge_function_console_screen.dart';
 
 class TableBrowserScreen extends StatefulWidget {
   final bool isDemoMode;
@@ -699,9 +700,11 @@ class _TableBrowserScreenState extends State<TableBrowserScreen>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => LogsScreen(
-                          projectName: projectName,
+                        builder: (_) => EdgeFunctionConsoleScreen(
+                          functionName: name,
+                          functionDetails: item,
                           projectRef: projectRef,
+                          projectName: projectName,
                         ),
                       ),
                     );

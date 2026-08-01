@@ -317,6 +317,53 @@ class ApiService {
     }
   }
 
+  /// Lists all secrets for a project
+  Future<List<dynamic>> listSecrets(String ref) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${AppConfig.apiBaseUrl}/api/projects/$ref/secrets'),
+        headers: await _getHeaders(),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as List<dynamic>;
+      }
+      return [];
+    } catch (e) {
+      debugPrint('[ApiService] ⚠️ Secrets list failed: $e');
+      return [];
+    }
+  }
+
+  /// Creates/updates secrets for a project
+  Future<bool> upsertSecrets(String ref, List<Map<String, String>> secrets) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${AppConfig.apiBaseUrl}/api/projects/$ref/secrets'),
+        headers: await _getHeaders(),
+        body: jsonEncode(secrets),
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('[ApiService] ⚠️ Secrets upsert failed: $e');
+      return false;
+    }
+  }
+
+  /// Deletes secrets for a project
+  Future<bool> deleteSecrets(String ref, List<String> secretNames) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('${AppConfig.apiBaseUrl}/api/projects/$ref/secrets'),
+        headers: await _getHeaders(),
+        body: jsonEncode(secretNames),
+      );
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('[ApiService] ⚠️ Secrets delete failed: $e');
+      return false;
+    }
+  }
+
   /// Lists users for a project
   Future<List<dynamic>> listUsers(String ref) async {
     try {

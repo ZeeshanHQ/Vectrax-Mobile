@@ -1970,6 +1970,14 @@ class _ArchitectScreenState extends ConsumerState<ArchitectScreen> {
                       color: AppTheme.accent, size: 32)
                   .animate(onPlay: (c) => c.repeat())
                   .shimmer(duration: 2.seconds),
+              SizedBox(
+                width: 100,
+                height: 100,
+                child: CircularProgressIndicator(
+                  color: AppTheme.accent.withOpacity(0.8),
+                  strokeWidth: 2,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 60),

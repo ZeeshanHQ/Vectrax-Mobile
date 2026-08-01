@@ -23,6 +23,9 @@ class _SplashScreenState extends State<SplashScreen> {
   void _navigateToNext() async {
     final authService = AuthService();
 
+    // Reconstruct client-side Supabase user session on startup
+    await authService.restoreSession();
+
     // Check if user is logged into the app itself (email OTP / social login)
     final hasVectraxToken = await authService.getAccessToken() != null;
     final hasSupaToken = await authService.isSupabaseConnected();

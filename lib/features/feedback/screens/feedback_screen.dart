@@ -34,11 +34,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         await client.from('feedbacks').insert({
           'user_id': userId,
           'category': _selectedType.toLowerCase(),
-          'content': content,
-          'device_info': {
-            'platform': Theme.of(context).platform.toString(),
-            'app_version': '1.0.25',
-          },
+          'message': content,
         });
 
         if (mounted) {

@@ -122,7 +122,7 @@ class _SystemAuditResultScreenState extends State<SystemAuditResultScreen> {
                       ),
                     ),
 
-                    if (!_isFinished) ...[
+                    if (!_isFinished && _currentInsights.isNotEmpty) ...[
                       const SizedBox(height: 40),
                       Text(
                         '${_currentInsights.length} ISSUES DISCOVERED',
@@ -469,6 +469,7 @@ class _SystemAuditResultScreenState extends State<SystemAuditResultScreen> {
   }
 
   Widget _buildSuccessState() {
+    final bool isAlreadyOptimal = widget.initialInsights.isEmpty;
     return Column(
       children: [
         Container(
@@ -482,10 +483,10 @@ class _SystemAuditResultScreenState extends State<SystemAuditResultScreen> {
               color: AppTheme.accent, size: 48),
         ).animate().scale(duration: 600.ms, curve: Curves.elasticOut),
         const SizedBox(height: 40),
-        const Text(
-          'YOUR SYSTEM IS PERFECT',
+        Text(
+          isAlreadyOptimal ? 'SYSTEM FULLY HEALTHY' : 'YOUR SYSTEM IS PERFECT',
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.w900,
@@ -494,7 +495,9 @@ class _SystemAuditResultScreenState extends State<SystemAuditResultScreen> {
         ),
         const SizedBox(height: 16),
         Text(
-          'All detected issues have been automatically repaired. Your project is now running at peak efficiency.',
+          isAlreadyOptimal
+              ? 'No security vulnerabilities or schema issues were detected. Your project is running at peak efficiency.'
+              : 'All detected issues have been automatically repaired. Your project is now running at peak efficiency.',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: Colors.white.withOpacity(0.4),

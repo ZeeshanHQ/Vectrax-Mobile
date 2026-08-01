@@ -225,6 +225,22 @@ class AuthService {
 
   Future<String?> getRefreshToken() => _storage.read(key: 'vectrax_refresh_token');
 
+  Future<void> restoreSession() async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) {
+        final refreshToken = await getRefreshToken();
+        if (refreshToken != null) {
+          debugPrint('[AuthService] 🔄 Restoring Supabase client SDK session from secure storage...');
+          await _supabase.auth.setSession(refreshToken);
+          debugPrint('[AuthService] ✅ Session restored successfully: ${_supabase.auth.currentUser?.id}');
+        }
+      }
+    } catch (e) {
+      debugPrint('[AuthService] ⚠️ Failed to restore session: $e');
+    }
+  }
+
   Future<bool> isSupabaseConnected() async {
     final token = await _storage.read(key: 'supabase_access_token');
     return token != null;
