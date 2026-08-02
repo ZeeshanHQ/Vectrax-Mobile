@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,8 +31,12 @@ class ProjectContext extends ChangeNotifier {
       if (stored != null) {
         _monitoredProjectIds.clear();
         _monitoredProjectIds.addAll(stored);
-        notifyListeners();
       }
+      final String? selectedJson = prefs.getString('selected_project_json');
+      if (selectedJson != null) {
+        _currentProject = jsonDecode(selectedJson) as Map<String, dynamic>;
+      }
+      notifyListeners();
     } catch (_) {}
   }
 
@@ -94,11 +99,17 @@ class ProjectContext extends ChangeNotifier {
   void selectProject(Map<String, dynamic> project) {
     if (_currentProject?['id'] == project['id']) return;
     _currentProject = project;
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString('selected_project_json', jsonEncode(project));
+    });
     notifyListeners();
   }
 
   void clearProject() {
     _currentProject = null;
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.remove('selected_project_json');
+    });
     notifyListeners();
   }
 }

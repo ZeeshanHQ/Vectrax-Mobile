@@ -170,9 +170,10 @@ class _TableBrowserScreenState extends State<TableBrowserScreen>
 
       // Auto-select first monitored project by default if none selected or if current selection is locked
       final currentProjId = _projectContext.currentProject?['id'] ?? _projectContext.currentProject?['ref'];
+      final existsInProjects = _projects.any((p) => p['id'] == currentProjId || p['ref'] == currentProjId);
       final isCurrentLocked = !_isPro && currentProjId != null && !ProjectContext().isProjectMonitored(currentProjId.toString());
 
-      if ((_projectContext.currentProject == null || isCurrentLocked) && _projects.isNotEmpty) {
+      if ((_projectContext.currentProject == null || !existsInProjects || isCurrentLocked) && _projects.isNotEmpty) {
         final defaultProj = _projects.firstWhere(
           (p) {
             final id = (p['id'] ?? p['ref'])?.toString();
