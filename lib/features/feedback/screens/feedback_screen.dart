@@ -30,31 +30,44 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       final client = Supabase.instance.client;
       final userId = client.auth.currentUser?.id;
       
-      if (userId != null) {
-        await client.from('feedbacks').insert({
-          'user_id': userId,
-          'category': _selectedType.toLowerCase(),
-          'message': content,
-        });
+      if (userId == null) {
+        throw Exception('User is not logged in. Please sign in to submit feedback.');
+      }
 
-        if (mounted) {
-          HapticFeedback.heavyImpact();
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Feedback submitted successfully! Thank you for helping us improve.'),
-              backgroundColor: AppTheme.accent,
-            ),
-          );
-        }
+      await client.from('feedbacks').insert({
+        'user_id': userId,
+        'category': _selectedType.toLowerCase(),
+        'message': content,
+      });
+
+      if (mounted) {
+        HapticFeedback.heavyImpact();
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Feedback submitted successfully! Thank you for helping us improve.'),
+            backgroundColor: AppTheme.accent,
+          ),
+        );
       }
     } catch (e) {
       debugPrint('[Feedback] Submission error: $e');
       if (mounted) {
         setState(() => _isSubmitting = false);
+        
+        String errorMsg = 'Failed to submit feedback. Please check your connection.';
+        if (e is PostgrestException) {
+          errorMsg = 'Failed to submit feedback: ${e.message}';
+        } else if (e is Exception) {
+          final cleanMsg = e.toString().replaceFirst('Exception: ', '');
+          errorMsg = 'Failed to submit feedback: $cleanMsg';
+        } else {
+          errorMsg = 'Failed to submit feedback: $e';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to submit feedback. Please check your connection.'),
+          SnackBar(
+            content: Text(errorMsg),
             backgroundColor: AppTheme.error,
           ),
         );

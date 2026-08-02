@@ -1,8 +1,7 @@
 async function main() {
     const supabaseUrl = "https://crlrgszzibpkqfixlmbw.supabase.co";
-    const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNybHJnc3p6aWJwa3FmaXhsbWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3MDYzMTYsImV4cCI6MjEwMDI4MjMxNn0.bvvinUdrMQ8ecQrEi6eLlaTYzNQhKDLRehS0Rn5zMhk";
+    const serviceRoleKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNybHJnc3p6aWJwa3FmaXhsbWJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NDcwNjMxNiwiZXhwIjoyMTAwMjgyMzE2fQ.sWCkKXhTd19XKSVMD63FeU93lBFtl_2oSH1j6IFQNsY";
     
-    // Simulate user_id = ddbe2890-0505-4044-a7bc-80c5de21f3d6 (owner of Astraventa)
     const testFeedback = {
         user_id: "ddbe2890-0505-4044-a7bc-80c5de21f3d6",
         category: "bug",
@@ -10,12 +9,12 @@ async function main() {
     };
     
     try {
-        console.log("Inserting feedback row via REST...");
+        console.log("Inserting feedback row via service role...");
         const response = await fetch(`${supabaseUrl}/rest/v1/feedbacks`, {
             method: 'POST',
             headers: {
-                'apikey': anonKey,
-                'Authorization': `Bearer ${anonKey}`,
+                'apikey': serviceRoleKey,
+                'Authorization': `Bearer ${serviceRoleKey}`,
                 'Content-Type': 'application/json',
                 'Prefer': 'return=representation'
             },
