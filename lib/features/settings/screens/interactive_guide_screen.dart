@@ -98,10 +98,10 @@ class _InteractiveGuideScreenState extends State<InteractiveGuideScreen> {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: _steps[_activeStep]['color'].withOpacity(0.06),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-                  child: Container(color: Colors.transparent),
-                ),
+              ),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                child: Container(color: Colors.transparent),
               ),
             ),
           ),
