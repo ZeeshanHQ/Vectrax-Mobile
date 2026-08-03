@@ -18,6 +18,10 @@ class _BiometricLockWrapperState extends State<BiometricLockWrapper> with Widget
   final LocalAuthentication _auth = LocalAuthentication();
   bool _isLocked = false;
   bool _isAuthenticating = false;
+  
+  // Track whether we should prompt the biometric dialog when the app resumes.
+  // Set to true on cold-boot and when the app goes fully to background (paused).
+  bool _shouldAuthenticateOnResume = true;
 
   @override
   void initState() {
@@ -35,12 +39,20 @@ class _BiometricLockWrapperState extends State<BiometricLockWrapper> with Widget
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     debugPrint('[BiometricLock] Lifecycle change: $state');
-    // Lock app immediately if it goes to background or becomes inactive (prevents preview leaks)
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+    
+    if (state == AppLifecycleState.paused) {
+      // App went to the background
+      _shouldAuthenticateOnResume = true;
+      if (!_isAuthenticating) {
+        _lockApp();
+      }
+    } else if (state == AppLifecycleState.inactive) {
+      // App lost focus (multitasking view or system dialog)
       if (!_isAuthenticating) {
         _lockApp();
       }
     } else if (state == AppLifecycleState.resumed) {
+      // App returned to foreground
       _checkBiometricLock();
     }
   }
@@ -60,10 +72,12 @@ class _BiometricLockWrapperState extends State<BiometricLockWrapper> with Widget
     final isBiometricEnabled = prefs.getBool('face_id_enabled') ?? false;
     
     if (isBiometricEnabled) {
-      setState(() {
-        _isLocked = true;
-      });
-      _authenticate();
+      if (_shouldAuthenticateOnResume) {
+        setState(() {
+          _isLocked = true;
+        });
+        _authenticate();
+      }
     } else {
       setState(() {
         _isLocked = false;
@@ -86,6 +100,7 @@ class _BiometricLockWrapperState extends State<BiometricLockWrapper> with Widget
         setState(() {
           _isLocked = false;
           _isAuthenticating = false;
+          _shouldAuthenticateOnResume = false;
         });
         return;
       }
@@ -101,14 +116,14 @@ class _BiometricLockWrapperState extends State<BiometricLockWrapper> with Widget
       if (authenticated) {
         setState(() {
           _isLocked = false;
+          _shouldAuthenticateOnResume = false; // Successfully authenticated
         });
         HapticFeedback.heavyImpact();
       }
     } catch (e) {
       debugPrint('[BiometricLock] Authentication error: $e');
     } finally {
-      // Delay resetting the authenticating flag briefly to allow the app to fully resume 
-      // and not trigger re-lock loops.
+      // Small delay before resetting authenticating state to prevent overlapping trigger runs
       Future.delayed(const Duration(milliseconds: 500), () {
         if (mounted) {
           setState(() {
@@ -185,7 +200,11 @@ class _BiometricLockWrapperState extends State<BiometricLockWrapper> with Widget
                 SizedBox(
                   width: 200,
                   child: ElevatedButton(
-                    onPressed: _authenticate,
+                    onPressed: () {
+                      // Triggering manually always forces authentication attempt
+                      _shouldAuthenticateOnResume = true;
+                      _authenticate();
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black,
