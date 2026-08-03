@@ -8,6 +8,7 @@ import 'package:supa_app/features/splash/screens/splash_screen.dart';
 import 'package:supa_app/core/services/notification_service.dart';
 import 'package:supa_app/core/services/auth_service.dart';
 import 'package:supa_app/core/widgets/main_navigation_screen.dart';
+import 'package:supa_app/core/widgets/biometric_lock_wrapper.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -92,6 +93,9 @@ class _SupaAppState extends State<SupaApp> {
       title: 'Vectrax',
       theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        return BiometricLockWrapper(child: child!);
+      },
       home: const SplashScreen(),
     );
   }

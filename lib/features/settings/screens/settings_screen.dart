@@ -12,6 +12,7 @@ import 'package:supa_app/features/feedback/screens/feedback_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supa_app/features/auth/screens/connect_screen.dart';
+import 'package:supa_app/features/settings/screens/interactive_guide_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -451,27 +452,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.menu_book_rounded,
                 onTap: () {
                   if (_hapticsEnabled) HapticFeedback.mediumImpact();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      backgroundColor: const Color(0xFF0F0F0F),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: BorderSide(
-                              color: Colors.white.withOpacity(0.05))),
-                      content: const Row(
-                        children: [
-                          Icon(Icons.auto_awesome_rounded,
-                              color: AppTheme.accent, size: 16),
-                          SizedBox(width: 12),
-                          Text('Pulse Docs | Coming soon!',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700)),
-                        ],
-                      ),
-                      behavior: SnackBarBehavior.floating,
-                      margin: const EdgeInsets.all(24),
-                    ),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const InteractiveGuideScreen()),
                   );
                 },
               ),

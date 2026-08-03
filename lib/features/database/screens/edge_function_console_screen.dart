@@ -484,6 +484,41 @@ class _EdgeFunctionConsoleScreenState extends State<EdgeFunctionConsoleScreen>
           ),
         ),
 
+        // Security Info Banner
+        Container(
+          margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: Colors.blueAccent.withOpacity(0.04),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Colors.blueAccent.withOpacity(0.15),
+              width: 0.8,
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(
+                Icons.info_outline_rounded,
+                color: Colors.blueAccent,
+                size: 16,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Secrets are securely encrypted on your Supabase project. For your security, raw plain-text values cannot be read back once saved.',
+                  style: GoogleFonts.inter(
+                    color: Colors.white38,
+                    fontSize: 11,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
         // Secrets List
         Expanded(
           child: _secrets.isEmpty
