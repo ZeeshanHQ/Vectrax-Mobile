@@ -1,4 +1,4 @@
-package com.example.supa_app
+package com.astraventa.vectrax
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 
