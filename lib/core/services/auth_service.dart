@@ -60,7 +60,7 @@ class AuthService {
       // issues our deep link: com.supabasepulse://login-callback
       await _supabase.auth.signInWithOAuth(
         provider,
-        redirectTo: 'com.supabasepulse://login-callback',
+        redirectTo: 'https://api.vectrax.astraventa.com/login-callback',
         authScreenLaunchMode: LaunchMode.inAppWebView,
       );
 
