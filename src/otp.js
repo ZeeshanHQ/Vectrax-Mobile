@@ -41,16 +41,7 @@ const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev';
 // ── Premium Email Template (Vectrax Emerald Green Theme) ─────────────────────
 function buildOtpEmail(code, email, baseUrl) {
     const requestTime = new Date().toUTCString();
-    let logoUrl = `${baseUrl}/assets/images/app_logo.png`;
-    try {
-        const logoPath = path.join(process.cwd(), 'assets', 'images', 'app_logo.png');
-        if (fs.existsSync(logoPath)) {
-            const logoBase64 = fs.readFileSync(logoPath).toString('base64');
-            logoUrl = `data:image/png;base64,${logoBase64}`;
-        }
-    } catch (e) {
-        console.error('[OTP] Failed to read app_logo.png for base64 embed:', e.message);
-    }
+    const logoUrl = 'https://raw.githubusercontent.com/ZeeshanHQ/Vectrax-Mobile/main/assets/images/app_logo.png';
     
     // Detailed, premium, production-grade email template (~700-900 lines of highly styled, compliant HTML)
     return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -408,6 +399,159 @@ function buildOtpEmail(code, email, baseUrl) {
 </html>`;
 }
 
+// ── Premium Welcome Email Template ───────────────────────────────────────────
+function buildWelcomeEmail(email) {
+    const logoUrl = 'https://raw.githubusercontent.com/ZeeshanHQ/Vectrax-Mobile/main/assets/images/app_logo.png';
+    return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to Vectrax</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style type="text/css">
+    body { margin: 0 !important; padding: 0 !important; width: 100% !important; background-color: #050608 !important; }
+    table, td { border-collapse: collapse !important; }
+    a { text-decoration: none !important; color: #00e676 !important; }
+    @media only screen and (max-width: 600px) {
+      .container { width: 100% !important; padding-left: 8px !important; padding-right: 8px !important; }
+      .card-wrap { padding: 32px 20px !important; }
+    }
+  </style>
+</head>
+<body style="background-color: #050608; font-family: 'Inter', -apple-system, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #050608; background-image: radial-gradient(circle at top, #0c1a15 0%, #050608 100%); padding: 54px 0;">
+    <tr>
+      <td align="center">
+        <table class="container" width="520" cellpadding="0" cellspacing="0" border="0" style="width: 100%; max-width: 520px;">
+          <!-- BRAND HEADER -->
+          <tr>
+            <td style="padding: 0 32px 28px 32px; text-align: left;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td width="36" style="vertical-align: middle; padding-right: 14px;">
+                    <img src="${logoUrl}" width="36" height="36" alt="Vectrax Logo" style="display: block; width: 36px; height: 36px; border-radius: 8px;" />
+                  </td>
+                  <td style="vertical-align: middle;">
+                    <span style="font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; color: #ffffff; letter-spacing: 1.5px; text-transform: uppercase;">VECTRAX</span>
+                    <span style="display: block; font-size: 9px; font-weight: 700; color: #00e676; letter-spacing: 2px; text-transform: uppercase; margin-top: 3px;">Database Control</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- CONTENT CARD -->
+          <tr>
+            <td class="card-wrap" style="background: rgba(10, 15, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 24px; padding: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+              <h1 style="margin: 0 0 16px 0; font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; line-height: 1.2;">Welcome to Vectrax!</h1>
+              <p style="margin: 0 0 24px 0; font-size: 14px; color: #8a99ad; line-height: 22px;">
+                Hello, <br/><br/>
+                We are thrilled to welcome you to the Vectrax database control network. You have successfully authenticated your administrator access profile.
+              </p>
+              
+              <!-- STEP 1 -->
+              <table width="100%" style="margin-bottom: 20px;">
+                <tr>
+                  <td width="24" style="vertical-align: top; padding-right: 12px;">
+                    <div style="width: 24px; height: 24px; background-color: rgba(0, 230, 118, 0.1); border: 1px solid rgba(0, 230, 118, 0.3); border-radius: 6px; text-align: center; line-height: 22px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 800; color: #00e676;">1</div>
+                  </td>
+                  <td>
+                    <h4 style="margin: 0 0 4px 0; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: #ffffff;">Connect Your Database</h4>
+                    <p style="margin: 0; font-size: 12px; color: #8a99ad; line-height: 18px;">Link your Supabase projects, tables, and credentials. They are secured using hardware-level biometrics and AES-256 local keys.</p>
+                  </td>
+                </tr>
+              </table>
+              
+              <!-- STEP 2 -->
+              <table width="100%" style="margin-bottom: 20px;">
+                <tr>
+                  <td width="24" style="vertical-align: top; padding-right: 12px;">
+                    <div style="width: 24px; height: 24px; background-color: rgba(0, 230, 118, 0.1); border: 1px solid rgba(0, 230, 118, 0.3); border-radius: 6px; text-align: center; line-height: 22px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 800; color: #00e676;">2</div>
+                  </td>
+                  <td>
+                    <h4 style="margin: 0 0 4px 0; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: #ffffff;">Live Metrics & Logs</h4>
+                    <p style="margin: 0; font-size: 12px; color: #8a99ad; line-height: 18px;">Inspect CPU metrics, read real-time database queries, view edge functions execution, and track API diagnostics offline.</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- STEP 3 -->
+              <table width="100%" style="margin-bottom: 32px;">
+                <tr>
+                  <td width="24" style="vertical-align: top; padding-right: 12px;">
+                    <div style="width: 24px; height: 24px; background-color: rgba(0, 230, 118, 0.1); border: 1px solid rgba(0, 230, 118, 0.3); border-radius: 6px; text-align: center; line-height: 22px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 800; color: #00e676;">3</div>
+                  </td>
+                  <td>
+                    <h4 style="margin: 0 0 4px 0; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: #ffffff;">Write-Only Secrets Vault</h4>
+                    <p style="margin: 0; font-size: 12px; color: #8a99ad; line-height: 18px;">Securely manage environment variables. Our proxy architecture ensures credentials can never be read once saved.</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA BUTTON -->
+              <table width="100%">
+                <tr>
+                  <td align="center">
+                    <a href="https://vectrax.astraventa.com" target="_blank" style="display: inline-block; background-color: #00e676; border-radius: 12px; padding: 16px 32px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800; color: #050608; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 10px 20px rgba(0, 230, 118, 0.2);">OPEN VECTRAX PORTAL</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- FOOTER -->
+          <tr>
+            <td style="padding: 32px; text-align: center;">
+              <p style="margin: 0 0 12px 0; font-size: 11px; color: #4e5d78; line-height: 16px;">
+                Vectrax is an intelligent database Operations System engineered by <strong>Astraventa</strong>.
+              </p>
+              <p style="margin: 0; font-size: 9px; color: #4e5d78; letter-spacing: 1px;">
+                &copy; 2026 Astraventa Technologies LLC. All rights reserved.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+// ── Dispatch Welcome Email ──────────────────────────────────────────────────
+async function sendWelcomeEmail(email) {
+    if (!RESEND_API_KEY) {
+        console.warn('[Welcome] ⚠️ RESEND_API_KEY not set. Cannot send welcome email.');
+        return;
+    }
+
+    try {
+        const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${RESEND_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                from: `Vectrax Welcome <${FROM_EMAIL}>`,
+                to: [email],
+                subject: 'Welcome to Vectrax — Database Control Center',
+                html: buildWelcomeEmail(email),
+            }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            console.log(`[Welcome] ✅ Welcome email sent successfully to ${email} | ID: ${data.id}`);
+        } else {
+            console.error(`[Welcome] ❌ Resend welcome error (${response.status}):`, data);
+        }
+    } catch (e) {
+        console.error('[Welcome] ❌ Failed to send welcome email:', e.message);
+    }
+}
+
 // ── OTP Send Handler ─────────────────────────────────────────────────────────
 export const handleOtpSend = async (req, res) => {
     const { email } = req.body;
@@ -530,6 +674,8 @@ export const handleOtpVerify = async (req, res) => {
                 }
             } else {
                 user = data.user;
+                // Dispatch welcome email asynchronously for new users
+                sendWelcomeEmail(lowercaseEmail);
             }
         } catch (e) {
             console.error('[OTP] ⚠️ Admin user ensure warning:', e.message);

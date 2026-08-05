@@ -82,4 +82,70 @@ class NotificationService {
 
     await _notificationsPlugin.show(id, title, body, details, payload: payload);
   }
+
+  Future<void> scheduleNotification({
+    int id = 1,
+    required String title,
+    required String body,
+    required Duration delay,
+    String? payload,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final bool isEnabled = prefs.getBool('notifications_enabled') ?? true;
+
+    if (!isEnabled) {
+      debugPrint('Scheduled notification suppressed: User disabled setting.');
+      return;
+    }
+
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+      'inactivity_alerts',
+      'Inactivity Alerts',
+      channelDescription: 'Reminders to connect Supabase and keep active',
+      importance: Importance.max,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+    );
+
+    const DarwinNotificationDetails darwinDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const NotificationDetails details = NotificationDetails(
+      android: androidDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
+    );
+
+    final scheduledDate = tz.TZDateTime.now(tz.local).add(delay);
+
+    try {
+      await _notificationsPlugin.zonedSchedule(
+        id,
+        title,
+        body,
+        scheduledDate,
+        details,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: payload,
+      );
+      debugPrint('Notification scheduled successfully in $delay.');
+    } catch (e) {
+      debugPrint('Failed to schedule notification: $e');
+    }
+  }
+
+  Future<void> cancelNotification(int id) async {
+    try {
+      await _notificationsPlugin.cancel(id);
+      debugPrint('Notification $id cancelled successfully.');
+    } catch (e) {
+      debugPrint('Failed to cancel notification: $e');
+    }
+  }
 }

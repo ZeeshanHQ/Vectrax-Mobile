@@ -11,6 +11,7 @@ import 'package:supa_app/core/widgets/success_check.dart';
 import 'package:supa_app/features/auth/screens/connect_screen.dart';
 import 'package:supa_app/features/auth/screens/syncing_screen.dart';
 import 'package:supa_app/core/widgets/main_navigation_screen.dart';
+import 'package:supa_app/core/services/notification_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -93,6 +94,15 @@ class _LoginScreenState extends State<LoginScreen> {
           if (mounted) {
             final token = await _authService.getAccessToken();
             if (mounted) {
+              if (token == null) {
+                // Schedule inactivity reminder for 24 hours
+                NotificationService().scheduleNotification(
+                  id: 4567,
+                  title: 'Database Connection Pending ⚡',
+                  body: 'Connect your Supabase account to Vectrax to unlock live control, edge functions, and database diagnostics!',
+                  delay: const Duration(hours: 24),
+                );
+              }
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -192,6 +202,13 @@ class _LoginScreenState extends State<LoginScreen> {
             setState(() => _showSuccess = true);
             await Future.delayed(1.seconds);
             if (mounted) {
+              // Schedule inactivity reminder for 24 hours
+              NotificationService().scheduleNotification(
+                id: 4567,
+                title: 'Database Connection Pending ⚡',
+                body: 'Connect your Supabase account to Vectrax to unlock live control, edge functions, and database diagnostics!',
+                delay: const Duration(hours: 24),
+              );
               Navigator.pushReplacement(
                 context,
                 PageRouteBuilder(

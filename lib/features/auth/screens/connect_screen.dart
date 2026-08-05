@@ -17,6 +17,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:supa_app/core/widgets/loading_overlay.dart';
 import 'package:app_links/app_links.dart';
 import 'package:supa_app/features/auth/screens/syncing_screen.dart';
+import 'package:supa_app/core/services/notification_service.dart';
 
 /// Shown right after a successful login.
 /// Gives the user a premium moment before entering the app.
@@ -96,6 +97,9 @@ class _ConnectScreenState extends State<ConnectScreen>
           if (refreshToken != null) {
             await storage.write(key: 'supabase_refresh_token', value: refreshToken);
           }
+
+          // Cancel the database connection reminder since it is now connected
+          NotificationService().cancelNotification(4567);
 
           debugPrint('[ConnectScreen] ✅ Connection complete. Navigating...');
           _navigateToDashboard();
