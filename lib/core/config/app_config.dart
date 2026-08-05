@@ -25,6 +25,11 @@ class AppConfig {
   static const String authorizeUrl =
       'https://api.supabase.com/v1/oauth/authorize';
 
+  /// Google Cloud Console Web Client ID (needed for 100% native in-app login)
+  /// Paste your Google Web Client ID here
+  static const String googleWebClientId =
+      '1013345806244-onq0k915fgacd3iqa9k4hpomk4kk7qdd.apps.googleusercontent.com';
+
   /// Full pre-built Login URL
   static String get loginUrl => '$authorizeUrl'
       '?client_id=$clientId'

@@ -17,6 +17,9 @@ class AuthService {
   Future<bool> signInWithGoogle() async {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn(
+        serverClientId: AppConfig.googleWebClientId.isNotEmpty
+            ? AppConfig.googleWebClientId
+            : null,
         scopes: ['email', 'profile'],
       );
 
