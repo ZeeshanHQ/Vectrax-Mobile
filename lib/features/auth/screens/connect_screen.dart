@@ -151,19 +151,16 @@ class _ConnectScreenState extends State<ConnectScreen>
     debugPrint('[ConnectScreen] 🚀 Launching OAuth URL: $url');
 
     try {
-      // Try in-app web view first to stay inside Vectrax
-      final launched = await launchUrl(
+      // Launch via external application to guarantee robust custom scheme (com.supabasepulse://) handling
+      await launchUrl(
         url,
-        mode: LaunchMode.inAppBrowserView,
+        mode: LaunchMode.externalApplication,
       );
-      if (!launched) {
-        await launchUrl(url, mode: LaunchMode.inAppWebView);
-      }
     } catch (e) {
       debugPrint('[ConnectScreen] ❌ Launch error: $e');
-      // Last resort fallback
+      // Last resort fallback using native platform default
       try {
-        await launchUrl(url, mode: LaunchMode.inAppWebView);
+        await launchUrl(url);
       } catch (e2) {
         debugPrint('[ConnectScreen] ❌ InAppWebView also failed: $e2');
         if (mounted) {

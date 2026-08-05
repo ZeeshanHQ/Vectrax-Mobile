@@ -9,6 +9,7 @@ import 'package:supa_app/core/services/notification_service.dart';
 import 'package:supa_app/core/services/auth_service.dart';
 import 'package:supa_app/core/widgets/main_navigation_screen.dart';
 import 'package:supa_app/core/widgets/biometric_lock_wrapper.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,8 +56,14 @@ class _SupaAppState extends State<SupaApp> {
     });
 
     // Listen for auth state changes — ensure profile row exists on every sign-in
-    _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+    _authSubscription = Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
       debugPrint('[Auth] 🔑 Event: ${data.event}');
+      final session = data.session;
+      if (session != null) {
+        const storage = FlutterSecureStorage();
+        await storage.write(key: 'vectrax_access_token', value: session.accessToken);
+        await storage.write(key: 'vectrax_refresh_token', value: session.refreshToken);
+      }
       if (data.event == AuthChangeEvent.signedIn && data.session != null) {
         // Ensure profile row exists (Google/GitHub OAuth won't trigger Flutter-side upsert otherwise)
         AuthService().ensureProfileExists();

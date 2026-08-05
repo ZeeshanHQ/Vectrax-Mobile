@@ -64,7 +64,7 @@ class AuthService {
       await _supabase.auth.signInWithOAuth(
         provider,
         redirectTo: 'https://api.vectrax.astraventa.com/login-callback',
-        authScreenLaunchMode: LaunchMode.inAppWebView,
+        authScreenLaunchMode: LaunchMode.externalApplication,
       );
 
       // Wait for the auth state to update (up to 3 minutes)
@@ -224,9 +224,17 @@ class AuthService {
 
   // ─── Token helpers ───────────────────────────────────────────────────────────
 
-  Future<String?> getAccessToken() => _storage.read(key: 'vectrax_access_token');
+  Future<String?> getAccessToken() async {
+    final token = _supabase.auth.currentSession?.accessToken;
+    if (token != null) return token;
+    return _storage.read(key: 'vectrax_access_token');
+  }
 
-  Future<String?> getRefreshToken() => _storage.read(key: 'vectrax_refresh_token');
+  Future<String?> getRefreshToken() async {
+    final token = _supabase.auth.currentSession?.refreshToken;
+    if (token != null) return token;
+    return _storage.read(key: 'vectrax_refresh_token');
+  }
 
   Future<void> restoreSession() async {
     try {
