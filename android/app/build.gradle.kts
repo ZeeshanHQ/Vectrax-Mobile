@@ -61,3 +61,9 @@ flutter {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
+
+tasks.configureEach {
+    if (name.contains("strip") && name.contains("DebugSymbols")) {
+        enabled = false
+    }
+}
