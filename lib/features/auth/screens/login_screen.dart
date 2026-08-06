@@ -93,8 +93,10 @@ class _LoginScreenState extends State<LoginScreen> {
           await Future.delayed(1.5.seconds);
           if (mounted) {
             final token = await _authService.getAccessToken();
+            final isSupaConnected = await _authService.isSupabaseConnected();
+            final appUser = _authService.currentUser;
             if (mounted) {
-              if (token == null) {
+              if (!isSupaConnected) {
                 // Schedule inactivity reminder for 24 hours
                 NotificationService().scheduleNotification(
                   id: 4567,
@@ -106,9 +108,9 @@ class _LoginScreenState extends State<LoginScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => token != null
+                  builder: (context) => (token != null && isSupaConnected)
                       ? const SyncingScreen()
-                      : ConnectScreen(userEmail: _emailController.text.trim()),
+                      : ConnectScreen(userEmail: appUser?.email ?? _emailController.text.trim()),
                 ),
               );
             }
