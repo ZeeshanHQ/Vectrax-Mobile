@@ -392,16 +392,20 @@ class AuthService {
   }
 
   Future<bool> upgradeToPremium() async {
+    return updatePremiumStatus(true);
+  }
+
+  Future<bool> updatePremiumStatus(bool isPremium) async {
     final user = currentUser;
     if (user == null) return false;
     try {
       await _supabase.from('profiles').update({
-        'is_premium': true,
-        'architect_daily_limit': 100,
+        'is_premium': isPremium,
+        'architect_daily_limit': isPremium ? 100 : 5,
       }).eq('id', user.id);
       return true;
     } catch (e) {
-      debugPrint('[Auth] Upgrade error: $e');
+      debugPrint('[Auth] Update premium status error: $e');
       return false;
     }
   }

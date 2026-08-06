@@ -30,6 +30,10 @@ class AppConfig {
   static const String googleWebClientId =
       '1013345806244-onq0k915fgacd3iqa9k4hpomk4kk7qdd.apps.googleusercontent.com';
 
+  /// RevenueCat Public API Key (goog_...) for Android In-App Billing
+  /// Link: https://dashboard.revenuecat.com/
+  static const String revenueCatApiKey = 'goog_placeholder_api_key_vectrax';
+
   /// Full pre-built Login URL
   static String get loginUrl => '$authorizeUrl'
       '?client_id=$clientId'

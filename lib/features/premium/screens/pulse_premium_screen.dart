@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supa_app/core/theme/app_theme.dart';
 import 'package:supa_app/core/services/auth_service.dart';
+import 'package:supa_app/core/services/premium_service.dart';
 
 class PulsePremiumScreen extends StatelessWidget {
   const PulsePremiumScreen({super.key});
@@ -201,8 +202,8 @@ class PulsePremiumScreen extends StatelessWidget {
                                 child: ElevatedButton(
                                   onPressed: () async {
                                     HapticFeedback.heavyImpact();
-                                    await AuthService().upgradeToPremium();
-                                    if (context.mounted) {
+                                    bool success = await PremiumService().purchasePremium(context);
+                                    if (success && context.mounted) {
                                       Navigator.pop(context);
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(

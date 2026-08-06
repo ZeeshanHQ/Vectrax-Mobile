@@ -7,6 +7,7 @@ import 'package:supa_app/core/theme/app_theme.dart';
 import 'package:supa_app/features/splash/screens/splash_screen.dart';
 import 'package:supa_app/core/services/notification_service.dart';
 import 'package:supa_app/core/services/auth_service.dart';
+import 'package:supa_app/core/services/premium_service.dart';
 import 'package:supa_app/core/widgets/main_navigation_screen.dart';
 import 'package:supa_app/core/widgets/biometric_lock_wrapper.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -16,8 +17,9 @@ Future<void> main() async {
 
   try {
     await NotificationService().init();
+    await PremiumService().init();
   } catch (e) {
-    debugPrint('[Notifications] Non-fatal init error: $e');
+    debugPrint('[Notifications/Premium] Non-fatal init error: $e');
   }
 
   await Supabase.initialize(
