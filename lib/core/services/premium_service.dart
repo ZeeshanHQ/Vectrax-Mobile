@@ -100,7 +100,8 @@ class PremiumService {
       if (offerings.current != null && offerings.current!.availablePackages.isNotEmpty) {
         // Purchase first available package (e.g. monthly)
         Package package = offerings.current!.availablePackages.first;
-        CustomerInfo customerInfo = await Purchases.purchasePackage(package);
+        PurchaseResult purchaseResult = await Purchases.purchasePackage(package);
+        CustomerInfo customerInfo = purchaseResult.customerInfo;
         
         bool isPremiumActive = customerInfo.entitlements.all["premium"]?.isActive ?? false;
         if (isPremiumActive) {
