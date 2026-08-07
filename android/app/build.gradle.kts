@@ -68,7 +68,8 @@ dependencies {
 }
 
 tasks.configureEach {
-    if (name.contains("strip") && name.contains("DebugSymbols")) {
+    val taskName = name.lowercase()
+    if (taskName.contains("strip") || taskName.contains("symbol")) {
         enabled = false
     }
 }
