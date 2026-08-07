@@ -11,8 +11,8 @@ android {
     // ndkVersion = flutter.ndkVersion
 
     lint {
-        isCheckReleaseBuilds = false
-        isAbortOnError = false
+        checkReleaseBuilds = false
+        abortOnError = false
     }
 
     compileOptions {
