@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.astraventa.vectrax"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "25.1.8937393"
+    ndkVersion = "27.0.12077973"
 
     lint {
         checkReleaseBuilds = false
