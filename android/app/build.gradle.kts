@@ -67,9 +67,4 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 
-tasks.configureEach {
-    val taskName = name.lowercase()
-    if (taskName.contains("strip") || taskName.contains("symbol")) {
-        enabled = false
-    }
-}
+
